@@ -3,6 +3,9 @@ import { PromptInput } from './components/PromptInput';
 import { ComponentCard } from './components/ComponentCard';
 import { RetroWindow } from './components/RetroWindow';
 import { useComponentGenerator } from './hooks/useComponentGenerator';
+import { usePersistentState } from './hooks/usePersistentState';
+import { STORAGE_KEYS, parseApiKeys, parsePromptHistory, parseProvider } from './utils/persistedState';
+import { addPromptHistory } from './utils/promptHistory';
 import type { Provider } from './types';
 import './App.css';
 
@@ -12,9 +15,19 @@ const PROVIDER_CONFIG = {
 } as const;
 
 function App() {
-  const [apiKey, setApiKey] = useState('');
+  const [provider, setProvider] = usePersistentState<Provider>(STORAGE_KEYS.provider, parseProvider, 'google');
+  const [apiKeys, setApiKeys] = usePersistentState(STORAGE_KEYS.apiKeys, parseApiKeys, {
+    anthropic: '',
+    google: '',
+  });
   const [showKey, setShowKey] = useState(false);
-  const [provider, setProvider] = useState<Provider>('google');
+  const apiKey = apiKeys[provider];
+  const setApiKey = (value: string) => setApiKeys((prev) => ({ ...prev, [provider]: value }));
+  const [promptHistory, setPromptHistory] = usePersistentState<string[]>(
+    STORAGE_KEYS.promptHistory,
+    parsePromptHistory,
+    [],
+  );
   const [envKeys, setEnvKeys] = useState<Record<Provider, boolean>>({
     anthropic: false,
     google: false,
@@ -36,12 +49,12 @@ function App() {
       alert(`${PROVIDER_CONFIG[provider].label} API 키를 입력하거나 .env에 설정해주세요.`);
       return;
     }
+    setPromptHistory((prev) => addPromptHistory(prev, prompt));
     generate(prompt, apiKey || undefined, provider);
   };
 
   const handleProviderChange = (newProvider: Provider) => {
     setProvider(newProvider);
-    setApiKey('');
   };
 
   const activeProvider = PROVIDER_CONFIG[provider].label;
@@ -66,7 +79,12 @@ function App() {
       <main className="desktop">
         <div className="workspace">
           <RetroWindow title="새 컴포넌트" className="composer-window">
-            <PromptInput onGenerate={handleGenerate} isLoading={isLoading} />
+            <PromptInput
+              onGenerate={handleGenerate}
+              isLoading={isLoading}
+              history={promptHistory}
+              onClearHistory={() => setPromptHistory([])}
+            />
           </RetroWindow>
 
           <RetroWindow title="실행 설정" className="settings-window" as="aside">

@@ -27,7 +27,7 @@ Prompt-to-React-component generator: a Bun proxy server calls an LLM, and the br
 - Keep port 3002 in sync in both places: `server/index.ts:139` and the Vite proxy target `vite.config.ts:11`.
 - Keep the generated-code contract consistent end to end. The system prompt forbids imports, TypeScript syntax, and markdown fences, and requires a `render(...)` call (`server/index.ts:7-21`); react-live runs with `noInline` (`src/components/LivePreview.tsx:10`), which only draws when `render(...)` is called.
 - Keep both defenses for that contract (Double Defense). Prompt rules in `server/index.ts:12,16` are backed by `stripCodeFences` and `ensureRenderCall` in `server/generator.ts:5,16`, applied at `server/index.ts:188`. Removing either side reintroduces blank previews when the model ignores instructions.
-- Keep the API-key check on both sides (Double Defense): client guard `src/App.tsx:35` and server guard `server/index.ts:169`. Client-entered keys override env keys (`server/index.ts:65`).
+- Keep the API-key check on both sides (Double Defense): client guard `src/App.tsx:48` and server guard `server/index.ts:169`. Client-entered keys override env keys (`server/index.ts:65`).
 - Put new pure logic in side-effect-free modules under `server/` and test it there. `server/index.ts` calls `Bun.serve` at import time and is untested; `generator.ts` and `fallback.ts` exist precisely so logic can be unit tested (`server/generator.ts:1-2`) (Test Boundary).
 
 ### Don't

@@ -312,6 +312,18 @@
   margin-top: 24px;
 }
 
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.history-header .examples-label {
+  margin-bottom: 0;
+}
+
 .examples-label,
 .provider-select legend,
 .api-key-input label {
