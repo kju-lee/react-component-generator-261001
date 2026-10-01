@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { validatePromptLength } from '../utils/validatePrompt';
 
 interface PromptInputProps {
   onGenerate: (prompt: string) => void;
@@ -16,10 +17,12 @@ const EXAMPLES = [
 
 export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
   const [prompt, setPrompt] = useState('');
+  const validation = validatePromptLength(prompt);
+  const canSubmit = prompt.trim() !== '' && validation.isValid && !isLoading;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (prompt.trim() && !isLoading) {
+    if (canSubmit) {
       onGenerate(prompt.trim());
     }
   };
@@ -51,7 +54,7 @@ export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
         <button
           type="submit"
           className="btn-generate"
-          disabled={!prompt.trim() || isLoading}
+          disabled={!canSubmit}
         >
           {isLoading ? (
             <span className="loading-spinner">생성 중...</span>
@@ -60,6 +63,11 @@ export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
           )}
         </button>
       </form>
+      {validation.error && (
+        <p className="prompt-error" role="alert">
+          {validation.error}
+        </p>
+      )}
       <p className="prompt-hint">Ctrl + Enter로 바로 생성할 수 있습니다.</p>
       <div className="prompt-examples">
         <span className="examples-label">예시에서 고르기</span>

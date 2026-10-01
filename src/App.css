@@ -295,6 +295,13 @@
   line-height: 1.65;
 }
 
+.prompt-error {
+  margin-top: 8px;
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .prompt-hint {
   margin-top: 8px;
   color: var(--ink-soft);
