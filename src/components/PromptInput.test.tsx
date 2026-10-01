@@ -49,4 +49,27 @@ describe('PromptInput', () => {
 
     expect(onGenerate).not.toHaveBeenCalled();
   });
+
+  it('히스토리 항목을 보여주고 클릭하면 입력창을 채운다', async () => {
+    const user = userEvent.setup();
+    render(
+      <PromptInput onGenerate={vi.fn()} isLoading={false} history={['지난 프롬프트']} onClearHistory={vi.fn()} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: '지난 프롬프트' }));
+
+    expect(screen.getByRole('textbox')).toHaveValue('지난 프롬프트');
+  });
+
+  it('기록 지우기 버튼을 누르면 onClearHistory를 호출한다', async () => {
+    const onClearHistory = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <PromptInput onGenerate={vi.fn()} isLoading={false} history={['지난 프롬프트']} onClearHistory={onClearHistory} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: '기록 지우기' }));
+
+    expect(onClearHistory).toHaveBeenCalledTimes(1);
+  });
 });
